@@ -12,6 +12,8 @@ from backend.app.core.security import (
     verify_api_key,
 )
 from backend.app.schemas.logs import (
+    AuditAnchorSnapshot,
+    AuditAnchorVerification,
     AuditChainVerification,
     AuditEvent,
     BackupCreateRequest,
@@ -26,6 +28,7 @@ from backend.app.schemas.logs import (
     ReviewStatus,
     SecurityStatus,
 )
+from backend.app.services.audit_anchor_service import get_audit_anchor_service
 from backend.app.services.backup_service import get_backup_service
 
 router = APIRouter(tags=["logs"])
@@ -140,6 +143,41 @@ def security_status(request: Request) -> SecurityStatus:
 )
 def verify_audit_events() -> AuditChainVerification:
     return AuditChainVerification(**get_database().verify_audit_chain())
+
+
+@router.post(
+    "/api/admin/audit-anchors",
+    response_model=AuditAnchorSnapshot,
+    dependencies=[Depends(verify_admin_api_key)],
+)
+def create_audit_anchor(request: Request) -> AuditAnchorSnapshot:
+    actor_role, actor_hash = request_actor(request)
+    snapshot = get_audit_anchor_service().create_anchor(
+        actor_role=actor_role,
+        actor_hash=actor_hash,
+    )
+    return AuditAnchorSnapshot(**snapshot)
+
+
+@router.get(
+    "/api/admin/audit-anchors",
+    response_model=list[AuditAnchorSnapshot],
+    dependencies=[Depends(verify_admin_api_key)],
+)
+def list_audit_anchors() -> list[AuditAnchorSnapshot]:
+    return [AuditAnchorSnapshot(**item) for item in get_audit_anchor_service().list_anchors()]
+
+
+@router.get(
+    "/api/admin/audit-anchors/{anchor_id}/verify",
+    response_model=AuditAnchorVerification,
+    dependencies=[Depends(verify_admin_api_key)],
+)
+def verify_audit_anchor(anchor_id: str) -> AuditAnchorVerification:
+    verification = get_audit_anchor_service().verify_anchor(anchor_id)
+    if not verification:
+        raise HTTPException(status_code=404, detail="Audit anchor not found")
+    return AuditAnchorVerification(**verification)
 
 
 @router.post(

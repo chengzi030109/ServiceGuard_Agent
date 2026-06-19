@@ -103,6 +103,36 @@ class AuditChainVerification(BaseModel):
     last_event_hash: str | None = None
 
 
+class AuditAnchorSnapshot(BaseModel):
+    id: str
+    filename: str
+    created_at: str
+    size_bytes: int
+    event_count: int
+    last_event_hash: str | None = None
+    events_sha256: str
+    manifest_sha256: str
+    chain_valid_at_anchor: bool
+    manifest_signed: bool
+    created_by_role: str
+    created_by_hash: str
+
+
+class AuditAnchorVerification(BaseModel):
+    id: str
+    filename: str
+    valid: bool
+    checks: dict[str, bool]
+    errors: list[str] = Field(default_factory=list)
+    manifest: dict[str, Any] = Field(default_factory=dict)
+    manifest_signed: bool = False
+    current_chain: dict[str, Any] = Field(default_factory=dict)
+    current_event_count: int
+    current_prefix_event_count: int
+    current_prefix_sha256: str | None = None
+    current_prefix_last_event_hash: str | None = None
+
+
 class SecurityStatus(BaseModel):
     status: str
     app_env: str

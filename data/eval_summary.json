@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-19T09:12:49.023078+00:00",
+  "generated_at": "2026-06-19T09:47:10.129833+00:00",
   "dataset": "data\\samples\\tickets_sample.csv",
   "total": 20,
   "json_success_rate": 1.0,
@@ -9,7 +9,7 @@
   "citation_coverage": 1.0,
   "high_risk_recall": 1.0,
   "average_score": 85.9,
-  "average_latency_ms": 22.25,
+  "average_latency_ms": 21.55,
   "risk_counts": {
     "low": 11,
     "high": 6,
@@ -53,7 +53,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 103,
+      "latency_ms": 93,
       "expected_violation": "over_promise",
       "violation_match": true
     },
@@ -69,7 +69,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 20,
+      "latency_ms": 19,
       "expected_violation": "",
       "violation_match": true
     },
@@ -85,7 +85,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 17,
+      "latency_ms": 16,
       "expected_violation": "privacy_risk",
       "violation_match": true
     },
@@ -117,7 +117,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 17,
+      "latency_ms": 18,
       "expected_violation": "policy_conflict",
       "violation_match": true
     },
@@ -133,7 +133,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 19,
+      "latency_ms": 17,
       "expected_violation": "",
       "violation_match": true
     },
@@ -149,7 +149,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 17,
+      "latency_ms": 16,
       "expected_violation": "process_missing",
       "violation_match": true
     },
@@ -165,7 +165,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 17,
+      "latency_ms": 18,
       "expected_violation": "",
       "violation_match": true
     },
@@ -181,7 +181,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 19,
+      "latency_ms": 16,
       "expected_violation": "over_promise",
       "violation_match": true
     },
@@ -197,7 +197,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 15,
+      "latency_ms": 19,
       "expected_violation": "",
       "violation_match": true
     },
@@ -213,7 +213,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 18,
+      "latency_ms": 19,
       "expected_violation": "",
       "violation_match": true
     },
@@ -229,7 +229,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 16,
+      "latency_ms": 19,
       "expected_violation": "attitude_issue",
       "violation_match": true
     },
@@ -261,7 +261,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 18,
+      "latency_ms": 16,
       "expected_violation": "policy_conflict",
       "violation_match": true
     },
@@ -277,7 +277,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 18,
+      "latency_ms": 19,
       "expected_violation": "",
       "violation_match": true
     },
@@ -293,7 +293,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 20,
+      "latency_ms": 19,
       "expected_violation": "",
       "violation_match": true
     },
@@ -309,7 +309,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 18,
+      "latency_ms": 16,
       "expected_violation": "",
       "violation_match": true
     },
@@ -341,7 +341,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 17,
+      "latency_ms": 18,
       "expected_violation": "over_promise",
       "violation_match": true
     },
@@ -357,7 +357,7 @@
       "risk_match": true,
       "ok": true,
       "error": null,
-      "latency_ms": 21,
+      "latency_ms": 18,
       "expected_violation": "",
       "violation_match": true
     }

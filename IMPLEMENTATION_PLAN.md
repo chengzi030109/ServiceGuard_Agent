@@ -24,7 +24,7 @@ P0 必做：
 - 服务启动时会把上次进程遗留的 pending/running 批量任务标记为 interrupted，避免任务永久卡在运行态。
 - `APP_ENV=production` 时执行安全配置自检，阻止无鉴权、开放 CORS、关闭限流、无远程模型 key 等危险启动配置。
 - 生产配置自检要求备份签名 key，避免生产备份缺少 manifest 防篡改证据。
-- 新审计事件写入 previous_hash/event_hash，管理员可校验审计哈希链是否被篡改。
+- 新审计事件写入 previous_hash/event_hash，管理员可校验审计哈希链是否被篡改，并可创建可签名审计锚点证据，记录事件前缀 SHA256、最后事件 hash、链校验摘要和 schema 版本。
 - `/metrics/prometheus` 输出 Prometheus 文本指标，并提供 Prometheus 抓取配置、Alertmanager 路由示例、alert rules 和可选 monitoring Compose，便于企业监控系统抓取和告警。
 - 管理员可通过 `/api/admin/security/status` 查看当前运行安全状态总览。
 - SQLite 初始化记录轻量 schema_migrations 版本台账，连接启用 WAL、busy timeout、foreign key，并在 ready、安全状态和指标中暴露当前/期望版本、quick check 与运行配置。
@@ -92,7 +92,7 @@ P1 加分：
 - 编写 Dockerfile、docker-compose。
 - 补充 Nginx gateway 和监控 Compose 覆盖文件。
 - 补充 `.dockerignore` 和 GitHub Actions 质量门禁。
-- 编写运行时 smoke test，从 HTTP 外部验证健康检查、指标、RAG、质检、安全状态和审计链。
+- 编写运行时 smoke test，从 HTTP 外部验证健康检查、指标、RAG、质检、安全状态、审计链和审计锚点。
 - 运行 pytest、ruff、评测门禁和 smoke test。
 - 更新 README 的启动命令、接口说明、演示流程和面试讲法。
 

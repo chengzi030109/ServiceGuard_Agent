@@ -242,6 +242,75 @@ def run_smoke_test(
             )
         )
 
+        audit_anchor = _post_json(
+            client,
+            f"{base_url}/api/admin/audit-anchors",
+            headers=admin_headers,
+            timeout=timeout,
+            json_body={},
+        )
+        anchor_id = audit_anchor.payload.get("id") if audit_anchor.payload else None
+        checks.append(
+            _expect(
+                "audit-anchor-create",
+                audit_anchor,
+                lambda payload: (
+                    payload.get("id")
+                    and payload.get("event_count", 0) >= 1
+                    and payload.get("chain_valid_at_anchor") is True
+                    and payload.get("manifest_sha256")
+                ),
+                {
+                    "anchor_id": anchor_id,
+                    "event_count": (
+                        audit_anchor.payload.get("event_count") if audit_anchor.payload else None
+                    ),
+                    "chain_valid_at_anchor": (
+                        audit_anchor.payload.get("chain_valid_at_anchor")
+                        if audit_anchor.payload
+                        else None
+                    ),
+                },
+            )
+        )
+
+        if anchor_id:
+            anchor_verify = _get_json(
+                client,
+                f"{base_url}/api/admin/audit-anchors/{anchor_id}/verify",
+                headers=admin_headers,
+                timeout=timeout,
+            )
+            checks.append(
+                _expect(
+                    "audit-anchor-verify",
+                    anchor_verify,
+                    lambda payload: (
+                        payload.get("valid") is True
+                        and payload.get("checks", {}).get("manifest_sha256_valid") is True
+                        and payload.get("checks", {}).get("current_audit_prefix_matches_anchor")
+                        is True
+                    ),
+                    {
+                        "anchor_id": anchor_id,
+                        "valid": (
+                            anchor_verify.payload.get("valid") if anchor_verify.payload else None
+                        ),
+                        "errors": (
+                            anchor_verify.payload.get("errors") if anchor_verify.payload else None
+                        ),
+                    },
+                )
+            )
+        else:
+            checks.append(
+                SmokeCheck(
+                    name="audit-anchor-verify",
+                    ok=False,
+                    error="audit-anchor-create produced no anchor_id",
+                )
+            )
+
     passed = all(check.ok for check in checks)
     return {
         "generated_at": datetime.now(UTC).isoformat(),

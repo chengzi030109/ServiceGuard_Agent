@@ -57,6 +57,7 @@ class Settings(BaseSettings):
     sqlite_synchronous: str = Field(default="NORMAL", alias="SQLITE_SYNCHRONOUS")
     upload_dir: str = Field(default="./data/uploads", alias="UPLOAD_DIR")
     backup_dir: str = Field(default="./data/backups", alias="BACKUP_DIR")
+    audit_anchor_dir: str = Field(default="./data/audit_anchors", alias="AUDIT_ANCHOR_DIR")
     backup_signing_key: str = Field(default="", alias="BACKUP_SIGNING_KEY")
     quarantine_prompt_injection_documents: bool = Field(
         default=True,
@@ -86,6 +87,10 @@ class Settings(BaseSettings):
     @property
     def backup_path(self) -> Path:
         return self._resolve_path(self.backup_dir)
+
+    @property
+    def audit_anchor_path(self) -> Path:
+        return self._resolve_path(self.audit_anchor_dir)
 
     @property
     def sqlite_path(self) -> Path:
@@ -229,6 +234,7 @@ class Settings(BaseSettings):
         self.chroma_path.mkdir(parents=True, exist_ok=True)
         self.upload_path.mkdir(parents=True, exist_ok=True)
         self.backup_path.mkdir(parents=True, exist_ok=True)
+        self.audit_anchor_path.mkdir(parents=True, exist_ok=True)
         self.sqlite_path.parent.mkdir(parents=True, exist_ok=True)
 
     def _resolve_path(self, value: str) -> Path:

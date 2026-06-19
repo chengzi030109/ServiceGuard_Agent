@@ -86,10 +86,13 @@ TEXT = {
         "security_status": "安全状态",
         "runtime_metrics": "运行指标",
         "audit_chain": "审计链",
+        "audit_anchors": "审计锚点",
         "retention_purge": "数据保留清理",
         "refresh_security_status": "刷新安全状态",
         "refresh_metrics": "刷新指标",
         "verify_audit_chain": "校验审计链",
+        "create_audit_anchor": "创建审计锚点",
+        "verify_audit_anchor": "校验审计锚点",
         "run_retention_purge": "执行保留清理",
         "production_ready": "生产就绪",
         "warnings": "告警",
@@ -206,10 +209,13 @@ TEXT = {
         "security_status": "Security status",
         "runtime_metrics": "Runtime metrics",
         "audit_chain": "Audit chain",
+        "audit_anchors": "Audit anchors",
         "retention_purge": "Retention purge",
         "refresh_security_status": "Refresh security status",
         "refresh_metrics": "Refresh metrics",
         "verify_audit_chain": "Verify audit chain",
+        "create_audit_anchor": "Create audit anchor",
+        "verify_audit_anchor": "Verify audit anchor",
         "run_retention_purge": "Run retention purge",
         "production_ready": "Production ready",
         "warnings": "Warnings",
@@ -816,8 +822,46 @@ with operations_tab:
                 c2.metric(t("audit_events"), audit["total_events"])
                 c3.metric(t("tampered"), audit["tampered_events"])
                 st.json(audit, expanded=False)
+        else:
+            show_response_error(response)
+
+        st.subheader(t("audit_anchors"))
+        if st.button(t("create_audit_anchor")):
+            response = requests.post(
+                api_url("/api/admin/audit-anchors"),
+                headers=api_headers(),
+                timeout=60,
+            )
+            if response.ok:
+                st.success(t("saved"))
+                st.json(response.json(), expanded=False)
             else:
                 show_response_error(response)
+
+        response = requests.get(
+            api_url("/api/admin/audit-anchors"),
+            headers=api_headers(),
+            timeout=20,
+        )
+        if response.ok:
+            anchors = response.json()
+            st.dataframe(pd.DataFrame(anchors), use_container_width=True, hide_index=True)
+            for anchor in anchors[:5]:
+                if st.button(
+                    f"{t('verify_audit_anchor')}: {anchor['filename']}",
+                    key=f"verify_audit_anchor_{anchor['id']}",
+                ):
+                    verify_response = requests.get(
+                        api_url(f"/api/admin/audit-anchors/{anchor['id']}/verify"),
+                        headers=api_headers(),
+                        timeout=60,
+                    )
+                    if verify_response.ok:
+                        st.json(verify_response.json(), expanded=False)
+                    else:
+                        show_response_error(verify_response)
+        else:
+            show_response_error(response)
 
         response = requests.get(
             api_url("/api/audit-events"),

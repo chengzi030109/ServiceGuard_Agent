@@ -16,6 +16,7 @@ data/serviceguard.db
 data/*.db
 data/*.db-*
 data/backups/
+data/audit_anchors/
 data/runtime_smoke_*/
 data/runtime_smoke_tmp_*/
 logs/

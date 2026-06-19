@@ -11,6 +11,7 @@ services:
       SQLITE_URL: sqlite:////app/data/serviceguard.db
       UPLOAD_DIR: /app/data/uploads
       BACKUP_DIR: /app/data/backups
+      AUDIT_ANCHOR_DIR: /app/data/audit_anchors
       QUARANTINE_PROMPT_INJECTION_DOCUMENTS: "true"
     ports:
       - "8000:8000"

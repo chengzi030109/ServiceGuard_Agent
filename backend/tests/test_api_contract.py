@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 from backend.app.core.config import get_settings
 from backend.app.core.database import Database, get_database
 from backend.app.main import app
+from backend.app.services.audit_anchor_service import AuditAnchorService
 from backend.app.services.ticket_service import get_ticket_service
 from backend.app.services.vector_store import get_vector_store
 from scripts.run_eval import EvalThresholds, _build_summary
@@ -558,6 +559,92 @@ def test_audit_hash_chain_concurrent_writes_remain_linear(tmp_path: Path) -> Non
     assert verified["tampered_events"] == 0
 
 
+def test_audit_anchor_service_creates_signed_verifiable_prefix(tmp_path: Path) -> None:
+    settings = get_settings()
+    original_audit_anchor_dir = settings.audit_anchor_dir
+    original_backup_signing_key = settings.backup_signing_key
+    settings.audit_anchor_dir = str(tmp_path / "audit-anchors")
+    settings.backup_signing_key = "audit-anchor-signing-key-1234567890abcdef"
+    db = Database(tmp_path / "audit-anchor.db")
+    db.save_audit_event(
+        event_id="audit_anchor_001",
+        request_id="req_anchor_001",
+        actor_role="admin",
+        actor_hash="actor_a",
+        method="GET",
+        path="/api/reports",
+        status_code=200,
+        latency_ms=12,
+        client_host="127.0.0.1",
+    )
+    db.save_audit_event(
+        event_id="audit_anchor_002",
+        request_id="req_anchor_002",
+        actor_role="admin",
+        actor_hash="actor_a",
+        method="GET",
+        path="/api/audit-events/verify",
+        status_code=200,
+        latency_ms=14,
+        client_host="127.0.0.1",
+    )
+    service = AuditAnchorService(settings=settings, db=db)
+
+    try:
+        snapshot = service.create_anchor(actor_role="admin", actor_hash="actor_a")
+        assert snapshot["id"].startswith("audit_anchor_")
+        assert snapshot["event_count"] == 2
+        assert snapshot["chain_valid_at_anchor"] is True
+        assert snapshot["manifest_signed"] is True
+        assert snapshot["manifest_sha256"]
+
+        anchors = service.list_anchors()
+        assert snapshot["id"] in {item["id"] for item in anchors}
+
+        verification = service.verify_anchor(snapshot["id"])
+        assert verification is not None
+        assert verification["valid"] is True
+        assert verification["checks"]["file_readable"] is True
+        assert verification["checks"]["manifest_sha256_valid"] is True
+        assert verification["checks"]["manifest_signature_valid"] is True
+        assert verification["checks"]["chain_was_valid_at_anchor"] is True
+        assert verification["checks"]["current_audit_prefix_matches_anchor"] is True
+        assert verification["manifest_signed"] is True
+
+        db.save_audit_event(
+            event_id="audit_anchor_003",
+            request_id="req_anchor_003",
+            actor_role="admin",
+            actor_hash="actor_a",
+            method="POST",
+            path="/api/admin/audit-anchors",
+            status_code=200,
+            latency_ms=18,
+            client_host="127.0.0.1",
+        )
+        verification_after_append = service.verify_anchor(snapshot["id"])
+        assert verification_after_append is not None
+        assert verification_after_append["valid"] is True
+        assert verification_after_append["current_event_count"] == 3
+        assert verification_after_append["current_prefix_event_count"] == 2
+
+        anchor_path = service.resolve_anchor_path(snapshot["id"])
+        assert anchor_path is not None
+        tampered_manifest = json.loads(anchor_path.read_text(encoding="utf-8"))
+        tampered_manifest["event_count"] = 999
+        anchor_path.write_text(
+            json.dumps(tampered_manifest, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        tampered = service.verify_anchor(snapshot["id"])
+        assert tampered is not None
+        assert tampered["valid"] is False
+        assert "manifest_sha256_mismatch" in tampered["errors"]
+    finally:
+        settings.audit_anchor_dir = original_audit_anchor_dir
+        settings.backup_signing_key = original_backup_signing_key
+
+
 def test_database_schema_migration_ledger_is_recorded(tmp_path: Path) -> None:
     db = Database(tmp_path / "schema-ledger.db")
 
@@ -764,6 +851,48 @@ def test_smoke_test_summary_validates_running_api_contract() -> None:
                 )
             if url.endswith("/api/audit-events/verify"):
                 return FakeResponse(200, {"valid": True, "tampered_events": 0})
+            if url.endswith("/api/admin/audit-anchors"):
+                return FakeResponse(
+                    200,
+                    {
+                        "id": "audit_anchor_smoke",
+                        "filename": "audit_anchor_smoke.json",
+                        "created_at": "2026-01-01T00:00:00+00:00",
+                        "size_bytes": 512,
+                        "event_count": 8,
+                        "last_event_hash": "abc123",
+                        "events_sha256": "1" * 64,
+                        "manifest_sha256": "2" * 64,
+                        "chain_valid_at_anchor": True,
+                        "manifest_signed": False,
+                        "created_by_role": "admin",
+                        "created_by_hash": "actor_hash",
+                    },
+                )
+            if url.endswith("/api/admin/audit-anchors/audit_anchor_smoke/verify"):
+                return FakeResponse(
+                    200,
+                    {
+                        "id": "audit_anchor_smoke",
+                        "filename": "audit_anchor_smoke.json",
+                        "valid": True,
+                        "checks": {
+                            "file_readable": True,
+                            "manifest_sha256_valid": True,
+                            "manifest_signature_valid": True,
+                            "chain_was_valid_at_anchor": True,
+                            "current_audit_prefix_matches_anchor": True,
+                        },
+                        "errors": [],
+                        "manifest": {},
+                        "manifest_signed": False,
+                        "current_chain": {"valid": True},
+                        "current_event_count": 9,
+                        "current_prefix_event_count": 8,
+                        "current_prefix_sha256": "1" * 64,
+                        "current_prefix_last_event_hash": "abc123",
+                    },
+                )
             return FakeResponse(404, {"error": "not found"})
 
         def get(self, url, headers=None, timeout=10.0):
@@ -796,6 +925,8 @@ def test_smoke_test_summary_validates_running_api_contract() -> None:
         "report-fetch",
         "admin-security-status",
         "audit-chain-verify",
+        "audit-anchor-create",
+        "audit-anchor-verify",
     }
 
 

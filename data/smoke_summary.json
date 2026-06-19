@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-06-19T09:18:04.086085+00:00",
+  "generated_at": "2026-06-19T09:47:46.272208+00:00",
   "base_url": "http://127.0.0.1:8011",
   "passed": true,
-  "total": 9,
+  "total": 11,
   "failed": 0,
   "checks": [
     {
       "name": "health",
       "ok": true,
       "status_code": 200,
-      "latency_ms": 15,
+      "latency_ms": 6,
       "details": {
         "status": "ok"
       },
@@ -19,7 +19,7 @@
       "name": "readiness",
       "ok": true,
       "status_code": 200,
-      "latency_ms": 6,
+      "latency_ms": 28,
       "details": {
         "status": "ready",
         "database": "ok",
@@ -32,7 +32,7 @@
       "name": "metrics-json",
       "ok": true,
       "status_code": 200,
-      "latency_ms": 9,
+      "latency_ms": 13,
       "details": {
         "documents_total": 0,
         "reports_total": 0,
@@ -45,7 +45,7 @@
       "name": "metrics-prometheus",
       "ok": true,
       "status_code": 200,
-      "latency_ms": 8,
+      "latency_ms": 13,
       "details": {
         "missing": []
       },
@@ -55,7 +55,7 @@
       "name": "rag-search",
       "ok": true,
       "status_code": 200,
-      "latency_ms": 34,
+      "latency_ms": 17,
       "details": {
         "result_count": 0
       },
@@ -65,9 +65,9 @@
       "name": "ticket-inspect",
       "ok": true,
       "status_code": 200,
-      "latency_ms": 29,
+      "latency_ms": 34,
       "details": {
-        "report_id": "report_ae1b975d9873",
+        "report_id": "report_6fc0c71a9ab8",
         "risk_level": "high",
         "violation_count": 2,
         "citation_count": 0
@@ -78,9 +78,9 @@
       "name": "report-fetch",
       "ok": true,
       "status_code": 200,
-      "latency_ms": 13,
+      "latency_ms": 16,
       "details": {
-        "report_id": "report_ae1b975d9873"
+        "report_id": "report_6fc0c71a9ab8"
       },
       "error": null
     },
@@ -88,7 +88,7 @@
       "name": "admin-security-status",
       "ok": true,
       "status_code": 200,
-      "latency_ms": 16,
+      "latency_ms": 20,
       "details": {
         "status": "warning",
         "production_ready": false
@@ -103,6 +103,30 @@
       "details": {
         "valid": true,
         "tampered_events": 0
+      },
+      "error": null
+    },
+    {
+      "name": "audit-anchor-create",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 33,
+      "details": {
+        "anchor_id": "audit_anchor_20260619T094746Z_70f8973e",
+        "event_count": 5,
+        "chain_valid_at_anchor": true
+      },
+      "error": null
+    },
+    {
+      "name": "audit-anchor-verify",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 25,
+      "details": {
+        "anchor_id": "audit_anchor_20260619T094746Z_70f8973e",
+        "valid": true,
+        "errors": []
       },
       "error": null
     }
