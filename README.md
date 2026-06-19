@@ -1,8 +1,38 @@
 # ServiceGuard Agent
 
+[![ServiceGuard CI](https://github.com/chengzi030109/ServiceGuard_Agent/actions/workflows/serviceguard-ci.yml/badge.svg)](https://github.com/chengzi030109/ServiceGuard_Agent/actions/workflows/serviceguard-ci.yml)
+![Python 3.12](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-Frontend-FF4B4B?logo=streamlit&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 企业知识库驱动的客服/工单质检 Agent。
 
 ServiceGuard Agent 使用 RAG 检索企业 SOP、售后政策、隐私合规规则等文档，并对客服对话输出结构化质检报告，包括风险等级、违规类型、政策引用、建议回复和人工复核提示。
+
+## 一眼看懂
+
+- 它解决什么：把企业知识库接入客服质检，让每条风险判断都尽量绑定政策引用和复核状态。
+- 它适合什么：企业内部 POC、实习项目投递、面试演示和客服合规 Agent 原型验证。
+- 它现在有什么：FastAPI 后端、Streamlit 中英文前端、RAG 检索、批量质检、人工复核、审计哈希链、可签名审计锚点、Prometheus 指标、Docker Compose 和 GitHub Actions CI。
+- 它还不是什么：不是完整生产级 SaaS；多租户账号体系、PostgreSQL/Alembic、异地灾备、对象存储和正式审批流仍属于后续路线。
+
+## 架构概览
+
+```mermaid
+flowchart LR
+  U["User / Reviewer"] --> FE["Streamlit UI"]
+  FE --> API["FastAPI Backend"]
+  API --> RAG["RAG Service"]
+  RAG --> VS["Chroma Vector Store"]
+  API --> DB["SQLite Metadata"]
+  API --> QA["Ticket QA Engine"]
+  API --> GOV["Governance APIs"]
+  GOV --> AUD["Audit Hash Chain + Anchors"]
+  GOV --> BAK["Backup / Restore Dry-run"]
+  API --> MET["JSON + Prometheus Metrics"]
+```
 
 ## 功能
 
@@ -94,6 +124,12 @@ docker compose -f docker-compose.yml -f docker-compose.gateway.yml --profile gat
 - 工单 CSV：`data/samples/tickets_sample.csv`
 
 可以先上传 `data/sample_docs/` 下的 Markdown 文档，再用样例工单测试质检。
+
+## 项目资料
+
+- [企业化就绪说明](docs/enterprise_readiness.md)
+- [实现计划](IMPLEMENTATION_PLAN.md)
+- [学习资料与阶段计划](docs/learning-materials/README.md)
 
 ## API
 
