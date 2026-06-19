@@ -1,0 +1,110 @@
+groups:
+  - name: serviceguard.rules
+    rules:
+      - alert: ServiceGuardInstanceDown
+        expr: up{job="serviceguard-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: ServiceGuard backend is down
+          description: Prometheus has not been able to scrape the backend for 2 minutes.
+
+      - alert: ServiceGuardHttp5xxErrors
+        expr: increase(serviceguard_http_error_responses_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard is returning HTTP 5xx responses
+          description: At least one server error response was recorded in the last 5 minutes.
+
+      - alert: ServiceGuardRateLimitSpike
+        expr: increase(serviceguard_http_rate_limited_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard rate limiting is active
+          description: More than 10 HTTP 429 responses were recorded in the last 5 minutes.
+
+      - alert: ServiceGuardHighLatency
+        expr: serviceguard_http_latency_ms_avg > 2000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard average latency is high
+          description: Average HTTP latency has stayed above 2 seconds for 10 minutes.
+
+      - alert: ServiceGuardHumanReviewBacklog
+        expr: serviceguard_reports_pending_review > 20
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard human review backlog is growing
+          description: More than 20 reports are waiting for human review.
+
+      - alert: ServiceGuardBatchJobsInterrupted
+        expr: serviceguard_batch_jobs_interrupted > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard has interrupted batch jobs
+          description: One or more background batch jobs were interrupted by a service restart.
+
+      - alert: ServiceGuardBatchJobsTimedOut
+        expr: serviceguard_batch_jobs_timed_out > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard has timed-out batch jobs
+          description: One or more background batch jobs exceeded the configured timeout.
+
+      - alert: ServiceGuardBatchJobCapacityFull
+        expr: serviceguard_batch_jobs_active >= serviceguard_batch_jobs_active_limit
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard background batch job capacity is full
+          description: Active background batch jobs have reached the configured global limit.
+
+      - alert: ServiceGuardDocumentQuarantineBacklog
+        expr: serviceguard_documents_quarantined > 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard has quarantined knowledge documents
+          description: One or more uploaded knowledge documents are waiting for security review.
+
+      - alert: ServiceGuardNoKnowledgeDocuments
+        expr: serviceguard_documents_total == 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard has no indexed documents
+          description: The knowledge base has no indexed policy documents.
+
+      - alert: ServiceGuardNoAuditEvents
+        expr: serviceguard_audit_events_total == 0
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard audit events are missing
+          description: No audit events have been persisted yet.
+
+      - alert: ServiceGuardDatabaseMigrationPending
+        expr: serviceguard_database_schema_pending_migrations > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: ServiceGuard database schema migrations are pending
+          description: The running database schema is behind the expected application schema.

@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-06-19T09:18:04.086085+00:00",
+  "base_url": "http://127.0.0.1:8011",
+  "passed": true,
+  "total": 9,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "health",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 15,
+      "details": {
+        "status": "ok"
+      },
+      "error": null
+    },
+    {
+      "name": "readiness",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 6,
+      "details": {
+        "status": "ready",
+        "database": "ok",
+        "vector_store": "ok",
+        "database_quick_check_ok": true
+      },
+      "error": null
+    },
+    {
+      "name": "metrics-json",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 9,
+      "details": {
+        "documents_total": 0,
+        "reports_total": 0,
+        "database_schema_pending_migrations": 0,
+        "database_sqlite_quick_check_ok": 1
+      },
+      "error": null
+    },
+    {
+      "name": "metrics-prometheus",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 8,
+      "details": {
+        "missing": []
+      },
+      "error": null
+    },
+    {
+      "name": "rag-search",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 34,
+      "details": {
+        "result_count": 0
+      },
+      "error": null
+    },
+    {
+      "name": "ticket-inspect",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 29,
+      "details": {
+        "report_id": "report_ae1b975d9873",
+        "risk_level": "high",
+        "violation_count": 2,
+        "citation_count": 0
+      },
+      "error": null
+    },
+    {
+      "name": "report-fetch",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 13,
+      "details": {
+        "report_id": "report_ae1b975d9873"
+      },
+      "error": null
+    },
+    {
+      "name": "admin-security-status",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 16,
+      "details": {
+        "status": "warning",
+        "production_ready": false
+      },
+      "error": null
+    },
+    {
+      "name": "audit-chain-verify",
+      "ok": true,
+      "status_code": 200,
+      "latency_ms": 14,
+      "details": {
+        "valid": true,
+        "tampered_events": 0
+      },
+      "error": null
+    }
+  ]
+}

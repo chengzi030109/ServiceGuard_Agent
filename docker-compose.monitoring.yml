@@ -1,0 +1,37 @@
+services:
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    profiles:
+      - monitoring
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    volumes:
+      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./deploy/prometheus/serviceguard_alerts.yml:/etc/prometheus/rules/serviceguard_alerts.yml:ro
+      - serviceguard-prometheus-data:/prometheus
+    depends_on:
+      backend:
+        condition: service_healthy
+      alertmanager:
+        condition: service_started
+    ports:
+      - "9090:9090"
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    profiles:
+      - monitoring
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    volumes:
+      - ./deploy/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - serviceguard-alertmanager-data:/alertmanager
+    ports:
+      - "9093:9093"
+
+volumes:
+  serviceguard-prometheus-data:
+  serviceguard-alertmanager-data:

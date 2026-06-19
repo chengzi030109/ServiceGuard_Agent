@@ -1,0 +1,28 @@
+services:
+  gateway:
+    image: nginx:1.27-alpine
+    profiles:
+      - gateway
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./deploy/nginx/serviceguard.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/nginx/serviceguard_proxy_params.conf:/etc/nginx/serviceguard_proxy_params.conf:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "-q",
+          "-O",
+          "/dev/null",
+          "http://127.0.0.1:8080/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
